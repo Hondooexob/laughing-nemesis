@@ -1,0 +1,229 @@
+
+// include the library code:
+const int TxPin = 6;
+#include <SoftwareSerial.h>
+SoftwareSerial mySerial = SoftwareSerial(255, TxPin);
+
+// Buttons
+#define select_btn 7
+#define ok_btn 5
+
+// LEDs
+#define green_led 10
+#define yellow_led 9
+#define red_led 8
+
+const int intervalB = 30;
+
+int select_btn_state = 0;
+int select_btn_last_state = 0;
+int ok_btn_state = 0;
+int ok_btn_last_state = 0;
+
+int red_ledPin = 8;                 // LED connected to digital pin 13
+int green_ledPin = 10;                 // LED connected to digital pin 13
+int yellow_ledPin = 9;                 // LED connected to digital pin 13
+int i = 0;
+
+int rounds = 0;
+long rounds_time = 0;
+long rest_time = 0;
+long startTime; // the value returned from millis when the switch is pressed
+long previousMillis = 0;
+unsigned long loopTime;
+
+// initialize the library with the numbers of the interface pins LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+void setup() {
+
+ mySerial.begin(9600);
+ delay(100);
+ mySerial.write(12);                 // Clear             
+ mySerial.write(17);                 // Turn backlight on
+ delay(5);                           // Required delay
+ mySerial.print("Hello Champ");  // First line
+ mySerial.write(13);                 // Form feed
+ mySerial.print("Get some!");   // Second line
+ mySerial.write(212);                // Quarter note
+ mySerial.write(220);                // A tone
+ delay(3000);                        // Wait 3 seconds
+ mySerial.write(12);                 // Clear    
+ delay(3000);  
+
+pinMode (select_btn, INPUT);
+pinMode (ok_btn, INPUT);
+
+pinMode (green_led, OUTPUT);
+pinMode (yellow_led, OUTPUT);
+pinMode (red_led, OUTPUT);
+
+}
+
+void loop() {
+
+rounds = 0;
+rounds_time = 0;
+rest_time = 0;
+
+digitalWrite (red_led, HIGH);
+mySerial.write(12);                 // Clear             
+mySerial.print("Rounds: 1-30?");
+mySerial.write(13);                 // Form feed
+mySerial.print("Select to Choose");
+
+do{
+
+   select_btn_state = digitalRead(select_btn);
+   ok_btn_state = digitalRead(ok_btn);
+
+  if (select_btn_state != select_btn_last_state){
+
+
+  if(select_btn_state == HIGH){
+        digitalWrite(red_led, LOW);
+        rounds = rounds ++;
+
+        if(rounds == 31){
+        rounds =1;
+        }
+
+        mySerial.write(12);                 // Clear             
+        mySerial.print("Rounds: ");
+        mySerial.print(rounds);
+        mySerial.write(13);                 // Form feed ...set cursor
+        mySerial.print("OK to confirm");
+  }
+  }
+    select_btn_last_state = select_btn_state;
+
+    if (ok_btn_state == HIGH){
+      ok_btn_last_state ++;
+
+    }
+
+  }while (ok_btn_last_state == 0);
+
+
+ mySerial.write(12);                    // Clear             
+ mySerial.print ("Rounds Time: ?");
+ mySerial.write(13);
+ mySerial.print ("Select to Choose");
+
+delay(200);
+ok_btn_last_state = 0;
+
+do{
+
+select_btn_state = digitalRead(select_btn);
+ok_btn_state = digitalRead(ok_btn);
+
+
+if (select_btn_state != select_btn_last_state){
+
+  if(select_btn_state == HIGH){
+        digitalWrite(red_led, LOW);
+        rounds_time = rounds_time + 30;
+
+        if(rounds_time == 330){
+        rounds_time =30;
+        }
+
+        mySerial.write(12);                 // Clear             
+        mySerial.print("Rounds Time: ");
+        mySerial.print(rounds_time);
+        mySerial.write(13);                 // form feed            
+        mySerial.print("OK to confirm");
+        mySerial.write(220);                // A tone
+
+  }
+  }
+    select_btn_last_state = select_btn_state;
+
+     if (ok_btn_state == HIGH){
+      ok_btn_last_state ++;
+
+    }
+
+
+
+}while (ok_btn_last_state == 0);
+
+ mySerial.write(12);                 // Clear             
+ mySerial.print ("Rest Time: ?");
+ mySerial.write(13);
+ mySerial.print ("Select to Choose");
+
+delay(200);
+ok_btn_last_state = 0;
+
+do{
+
+select_btn_state = digitalRead(select_btn);
+ok_btn_state = digitalRead(ok_btn);
+
+
+if (select_btn_state != select_btn_last_state){
+
+  if(select_btn_state == HIGH){
+        digitalWrite(red_led, LOW);
+        rest_time = rest_time + 30;
+
+        if(rest_time == 330){
+        rest_time =30;
+        }
+
+        mySerial.write(12);                 // Clear             
+        mySerial.print("Rest Time: ");
+        mySerial.print(rest_time);
+        mySerial.write(13);
+        mySerial.print("OK to confirm");
+  }
+  }
+    select_btn_last_state = select_btn_state;
+
+     if (ok_btn_state == HIGH){
+      ok_btn_last_state ++;
+
+    }
+
+}while (ok_btn_last_state == 0);
+
+delay(200);
+ok_btn_last_state = 0;
+
+//Run the main program
+ for (i=1; i<= rounds; i++)
+ {  
+unsigned long currentMillis = millis();
+ digitalWrite (green_led,HIGH);
+ mySerial.write (12);
+ mySerial.print("Round ");
+ mySerial.print(i);
+if(currentMillis - previousMillis >= intervalB * 1000){
+ mySerial.write(212);                // Quarter note
+ mySerial.write(220); // A tone
+ currentMillis=millis();
+}
+
+if(i < rounds){
+ digitalWrite (yellow_led, HIGH);
+ digitalWrite(green_led,LOW);
+ mySerial.write(12);
+ mySerial.print ("Round ");
+ mySerial.print (i);
+ mySerial.print (" Rest");
+ delay (rest_time * 1000);
+ digitalWrite(yellow_led, LOW);
+ mySerial.write(212);                // Quarter note
+ mySerial.write(220);                // A tone
+}
+ }
+
+
+digitalWrite (red_led, HIGH);
+mySerial.write(156);
+mySerial.write(12);
+mySerial.print("End Workout");
+delay(5000);
+
+}
