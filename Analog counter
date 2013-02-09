@@ -1,0 +1,71 @@
+// include the library code:
+const int TxPin = 6;
+#include <SoftwareSerial.h>
+SoftwareSerial mySerial = SoftwareSerial(255, TxPin);
+
+// these constants won't change:
+const int headSensor = A0;// the piezo is connected to analog pin 0
+const int bodySensor = A1;
+const int thresholdA = 900;  // threshold value to decide when the detected sound is a knock or not
+const int thresholdB = 800;  // threshold value to decide when the detected sound is a knock or not
+
+
+// these variables will change:
+int headReading = 0;    // variable to store the value read from the sensor pin
+int bodyReading = 0;
+int h=0;
+int n=0; //will be used to store the count
+bool count_flag = false;
+bool count_flag1 = false;
+
+
+
+void setup() {
+  mySerial.begin(9600);
+  delay(10);
+  mySerial.write(12);                 // Clear             
+  mySerial.write(17);                 // Turn backlight on
+  delay(5);                           // Required delay
+  mySerial.print("Whattupp Champ");  // First line
+  mySerial.write(13);                 // Form feed
+  mySerial.print("Get some SON!");   // Second line
+  mySerial.write(212);                // Quarter note
+  mySerial.write(220);                // A tone
+  delay(3000);                        // Wait 3 seconds
+  mySerial.write(12);                 // Clear    
+  delay(1000);  
+  
+}
+
+void loop() {
+  // read the sensor and store it in the variable sensorReading:
+  bodyReading = analogRead(bodySensor);
+      if(bodyReading > thresholdB && !count_flag1)
+            h=h + 1;
+            count_flag1 = true; 
+            mySerial.write(148);
+            mySerial.print("Body shots:");
+            mySerial.print(h);  
+  
+      if(bodyReading <= thresholdB)
+            count_flag1 = false;
+
+           
+       //set count_flag to false only when below the threshold
+   
+ headReading = analogRead(headSensor);    
+
+if(headReading > thresholdA && !count_flag)  //if analog_in > Hi_THRESHOLD and count_flag == false
+      
+            n=n + 1;
+            count_flag = true;
+             mySerial.write(12);
+            mySerial.print("Head shots:");  
+            mySerial.print(n);   
+  if(headReading <= thresholdA)   //set count_flag to false only when below the threshold
+            count_flag = false;
+  }
+
+
+
+    
