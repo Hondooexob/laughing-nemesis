@@ -1,3 +1,6 @@
+//This is the first part of the receiving code for my Arduino network, connected via Series 1 Xbee.
+
+
 const int TxPin = 6;
 #include <SoftwareSerial.h>
 SoftwareSerial mySerial = SoftwareSerial(255, TxPin);
@@ -137,7 +140,7 @@ if(Serial.available() && i>= 2){  //is there anything to read?
  
   }
   }
-  
+  //  HERE IS WHERE I NEED HELP FINISHING OFF THE ROUND CYCLES. led_green on during round, Analog Read....etc.
  
 }
 
