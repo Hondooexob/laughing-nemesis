@@ -1,0 +1,54 @@
+
+// these constants won't change:
+const int headSensor = A0;// the piezo is connected to analog pin 0
+const int bodySensor = A1;
+const int thresholdA = 600;  // threshold value to decide when the detected sound is a knock or not
+const int thresholdB = 600;  // threshold value to decide when the detected sound is a knock or not
+
+
+// these variables will change:
+int headReading = 0;    // variable to store the value read from the sensor pin
+int bodyReading = 0;
+
+bool count_flag = false;
+bool count_flag1 = false;
+
+
+
+void setup() {
+  Serial.begin(9600);
+   
+  
+}
+
+void loop() {
+  // read the sensor and store it in the variable sensorReading:
+  bodyReading = analogRead(bodySensor);
+      if(bodyReading > thresholdB && !count_flag1){
+            count_flag1 = true; 
+            Serial.print('a');
+            delay(5);
+      }
+      if(bodyReading <= thresholdB)
+            count_flag1 = false;
+
+           
+       //set count_flag to false only when below the threshold
+   delay(10);  // delay to avoid overloading the serial port buffer
+   
+ headReading = analogRead(headSensor);    
+
+if(headReading > thresholdA && !count_flag){  //if analog_in > Hi_THRESHOLD and count_flag == false
+      
+            count_flag = true;
+            Serial.print('b');  
+            delay(4);
+}
+  if(headReading <= thresholdA)   //set count_flag to false only when below the threshold
+            count_flag = false;
+            delay(10);
+  }
+
+
+
+    
